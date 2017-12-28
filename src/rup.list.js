@@ -17,17 +17,30 @@
 /*global define */
 /*global jQuery */
 
+
+/**
+ * Tiene como objetivo presentar un contenido donde conceptos relacionados pueden agruparse (ej. secciones) de manera que el usuario puede mostrar u ocultar información sin perder el contexto del contenido principal.
+ *
+ * @summary Componente RUP List.
+ * @module rup_list
+ * @see El componente no está basado en el ningún plugin .
+ * @example
+		$("#idListJson").rup_list({
+			type: $.rup.list.JSON,
+			data: json
+		});
+ */
 ( function( factory ) {
 	if ( typeof define === 'function' && define.amd ) {
 
 		// AMD. Register as an anonymous module.
-		define( ['jquery','./rup.base'], factory );
+		define( ['jquery','./templates','handlebars','./rup.base'], factory );
 	} else {
 
 		// Browser globals
 		factory( jQuery );
 	}
-} ( function( $ ) {
+} ( function( $, Rup, Handlebars ) {
 	var settingsInit;
 
 	//****************************************************************************************************************
@@ -67,6 +80,10 @@
 	// $("#idLista).rup_list("getNumElems");
 	// $("#idLista).rup_list("setElem", 2, {});
 	$.fn.rup_list('extend',{
+		/**
+		    * Inicializa las listas.
+		    *
+		    */
 		inicio: function(paramJson) {
 			var $self = this;
 			var settings = settingsInit,
@@ -127,8 +144,10 @@
 					contentType : 'application/json',
 					dataType: 'json',
 					url: settings.url,
-					success: function(data) {
-						$self._jsonLoad(settings,data);
+					success: function(datosController) {
+
+						settings.data = {data:datosController};
+						$self._jsonLoad(settings);
 					},
 					error: function (){
 						alert('Se ha producido un error al recuperar los datos del servidor');
@@ -142,39 +161,23 @@
 		     * @private
 		     * @param {object} settings - Propiedades de configuración del componente.
 		     */
-				_jsonLoad: function (settings,json) {
+				_jsonLoad: function (settings) {
 					var $self = this;
 					$self.text("");
 					//Si el tipo de dialogo es AJAX y no se establece url se muestra un error y se devuelve el control
-					if (!json || json === null || json === '') {
+					if (!settings.data || settings.data === null || settings.data === '') {
 						$.rup_messages("msgAlert", {						
 							message: "Json incorrecto"
 						});
 						return false;
 					}
-					var cadena = "";
-					var $ul = $('<ul>', {class: "list-group"});
-					$.each( json, function( j, jsonObj ) {
-						//Se establece el orden por defecto;
-						var listDefault = settings.template.split(",");
-						$.each(listDefault, function( idx, obj ) {
-							if(jsonObj[obj] !== undefined){
-								cadena += jsonObj[obj]+" ";
-								delete jsonObj[obj];
-							}
-						});
-						//Se lista  el resto
-						$.each(jsonObj, function(idx, obj) {
-						    cadena += obj+" ";
-						});
-						$('<li/>')
-					        .addClass('list-group-item')
-					        .attr('role', 'menuitem')
-					        .text(cadena)
-					        .appendTo($ul);
-						cadena = "";
-					});
-					$self.append($ul);
+
+		          	if (settings.template){
+		            	settings._template = Handlebars.compile(settings.template);  
+		            }
+		          	var templateData = settings.data;
+		          	var html = settings._template(templateData);
+		          	$self.append(html);
 				}
 	});
 
@@ -187,11 +190,17 @@
 	//});
 	$.fn.rup_list('extend', {
 		_init : function(args){
+			
+			Rup.Templates;
+			Handlebars;
 			settingsInit = $.extend({}, $.fn.rup_list.defaults, args[0]);
 
+			
 			var $self = this;
 			 if($.rup.list.AJAX === settingsInit.type){
 					$self._ajaxLoad(settingsInit);
+			 }else if($.rup.list.JSON === settingsInit.type){
+				 	$self._jsonLoad(settingsInit);
 			 }
 		
 			return $self;
@@ -204,7 +213,9 @@
 	//******************************************************
 	$.fn.rup_list.defaults = {
 		ajaxCache: true,
-		template: "nombre,apellido1,apellido2",
+		_template: Rup.Templates.rup.list.base,
+		template: null,
+		data: null,
 		type: null,
 		url: null
 	};
