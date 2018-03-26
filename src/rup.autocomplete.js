@@ -166,6 +166,8 @@ el resto de componentes RUP para estandarizar la asignación del valor al Autoco
 			}
 
 			self.autocomplete('destroy');
+			self.parent().remove();
+			$(this).removeAttr('type')
 		},
 		/**
          * Deshabilita el autocomplete (solo la parte de sugerencias, el input sigue habilitado).
