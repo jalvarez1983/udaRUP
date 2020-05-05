@@ -20,7 +20,7 @@
 import underscore from 'underscore';
 import 'jquery';
 import 'rup.base';
-import 'popper.js';
+import { createPopper } from '@popperjs/core';
 import './external/bootstrap-calendar';
 
 /**

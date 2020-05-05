@@ -156,7 +156,7 @@ module.exports = [{
                 options: 'Tether'
             }]
         }, {
-            test: require.resolve('popper.js'),
+            test: require.resolve('@popperjs/core'),
             use: [{
                 loader: 'expose-loader',
                 options: 'Popper'
