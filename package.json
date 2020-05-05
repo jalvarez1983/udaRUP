@@ -44,7 +44,7 @@
     "@babel/core": "^7.8.4",
     "@babel/polyfill": "^7.8.3",
     "@babel/preset-env": "^7.8.4",
-    "@mdi/font": "^4.9.95",
+    "@mdi/font": "^5.1.45",
     "@popperjs/core": "^2.4.0",
     "acorn": "^7.1.0",
     "autoprefixer": "^7.2.6",
